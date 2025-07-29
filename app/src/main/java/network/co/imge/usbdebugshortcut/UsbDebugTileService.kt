@@ -41,7 +41,7 @@ class UsbDebugTileService : TileService() {
         } else {
             Tile.STATE_INACTIVE
         }
-        tile.icon = Icon.createWithResource(this, R.drawable.usb_debug_shortcut)
+        tile.icon = Icon.createWithResource(this, R.drawable.shortcut_icon)
         tile.updateTile()
     }
 
