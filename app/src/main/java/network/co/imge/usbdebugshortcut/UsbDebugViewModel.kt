@@ -2,17 +2,23 @@ package network.co.imge.usbdebugshortcut
 
 import android.content.Context
 import android.content.SharedPreferences
+import android.database.ContentObserver
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
 
 class UsbDebugViewModel : ViewModel() {
     private val _isUsbDebugEnabled = MutableStateFlow(false)
     val isUsbDebugEnabled: StateFlow<Boolean> = _isUsbDebugEnabled
     private var prefs: SharedPreferences? = null
     private var listener: SharedPreferences.OnSharedPreferenceChangeListener? = null
+    private var adbObserver: ContentObserver? = null
+    private var contextRef: WeakReference<Context>? = null
 
     fun initPrefs(context: Context) {
         if (prefs == null) {
@@ -24,6 +30,24 @@ class UsbDebugViewModel : ViewModel() {
             }
             prefs?.registerOnSharedPreferenceChangeListener(listener)
         }
+    }
+
+    fun startAdbObserver(context: Context) {
+        if (adbObserver == null) {
+            contextRef = WeakReference(context)
+            adbObserver = object : ContentObserver(Handler(Looper.getMainLooper())) {
+                override fun onChange(selfChange: Boolean) {
+                    _isUsbDebugEnabled.value = CommonTools.isUsbDebugEnabled(context)
+                }
+            }
+            context.contentResolver.registerContentObserver(
+                android.provider.Settings.Global.getUriFor(android.provider.Settings.Global.ADB_ENABLED),
+                false,
+                adbObserver!!
+            )
+        }
+        // 初始化狀態
+        _isUsbDebugEnabled.value = CommonTools.isUsbDebugEnabled(context)
     }
 
     fun refresh(context: Context) {
@@ -48,5 +72,8 @@ class UsbDebugViewModel : ViewModel() {
     override fun onCleared() {
         super.onCleared()
         prefs?.unregisterOnSharedPreferenceChangeListener(listener)
+        contextRef?.get()?.let { ctx ->
+            adbObserver?.let { ctx.contentResolver.unregisterContentObserver(it) }
+        }
     }
 }

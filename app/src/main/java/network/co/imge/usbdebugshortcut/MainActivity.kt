@@ -36,6 +36,7 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         usbDebugViewModel = ViewModelProvider(this)[UsbDebugViewModel::class.java]
         usbDebugViewModel.initPrefs(this)
+        usbDebugViewModel.startAdbObserver(this)
         setContent {
             UsbDebugShortcutTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
