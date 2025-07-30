@@ -1,33 +1,63 @@
 package network.co.imge.usbdebugshortcut
 
+import android.content.BroadcastReceiver
+import android.content.Context
 import android.content.Intent
-import android.graphics.drawable.Icon
-import android.provider.Settings
+import android.content.IntentFilter
 import android.service.quicksettings.Tile
 import android.service.quicksettings.TileService
+import android.graphics.drawable.Icon
 import android.widget.Toast
-import java.io.DataOutputStream
 
 class UsbDebugTileService : TileService() {
+    private var tileReceiver: BroadcastReceiver? = null
 
     override fun onStartListening() {
         super.onStartListening()
         updateTileState()
+        // 註冊廣播
+        if (tileReceiver == null) {
+            tileReceiver = object : BroadcastReceiver() {
+                override fun onReceive(context: Context?, intent: Intent?) {
+                    if (intent?.action == CommonTools.ACTION_REFRESH_TILE) {
+                        updateTileState()
+                    }
+                }
+            }
+            val filter = IntentFilter(CommonTools.ACTION_REFRESH_TILE)
+            registerReceiver(tileReceiver, filter, Context.RECEIVER_NOT_EXPORTED)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        if (tileReceiver != null) {
+            unregisterReceiver(tileReceiver)
+            tileReceiver = null
+        }
     }
 
     override fun onClick() {
-        if (hasRootAccess()) {
+        if (!CommonTools.isDisclaimerAgreed(applicationContext)) {
+            Toast.makeText(applicationContext, "請先在主程式同意免責聲明後才能使用 root 相關功能", Toast.LENGTH_LONG).show()
+            return
+        }
+        if (CommonTools.hasRootAccess()) {
             collapseStatusBarWithShell()
-            toggleUsbDebugWithRoot()
+            CommonTools.toggleUsbDebugWithRoot(applicationContext)
+            // tile 狀態同步
+            val enabled = CommonTools.isUsbDebugEnabled(applicationContext)
+            CommonTools.setLastUsbDebugState(applicationContext, enabled)
+            sendBroadcast(Intent(CommonTools.ACTION_REFRESH_TILE))
+            sendBroadcast(Intent(CommonTools.ACTION_REFRESH_UI))
         } else {
-            openDeveloperSettings()
+            CommonTools.openDeveloperSettings(applicationContext)
         }
         updateTileState()
     }
 
     private fun collapseStatusBarWithShell() {
         try {
-            // 使用 service call 命令收起通知欄，不會影響當前應用
             val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "service call statusbar 2"))
             process.waitFor()
         } catch (e: Exception) {
@@ -37,55 +67,13 @@ class UsbDebugTileService : TileService() {
 
     private fun updateTileState() {
         val tile = qsTile ?: return
-        tile.state = if (isUsbDebugEnabled()) {
+        tile.state = if (CommonTools.isUsbDebugEnabled(applicationContext)) {
             Tile.STATE_ACTIVE
         } else {
             Tile.STATE_INACTIVE
         }
         tile.icon = Icon.createWithResource(this, R.drawable.shortcut_icon)
         tile.updateTile()
-    }
-
-    private fun isUsbDebugEnabled(): Boolean {
-        return Settings.Global.getInt(contentResolver, Settings.Global.ADB_ENABLED, 0) == 1
-    }
-
-    private fun toggleUsbDebugWithRoot() {
-        val enable = if (isUsbDebugEnabled()) 0 else 1
-        try {
-            val process = Runtime.getRuntime().exec("su")
-            val output = DataOutputStream(process.outputStream)
-            output.writeBytes("settings put global adb_enabled $enable\n")
-            output.writeBytes("exit\n")
-            output.flush()
-            process.waitFor()
-            Toast.makeText(applicationContext, "USB Debug 已 ${if (enable == 1) "開啟" else "關閉"}", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(applicationContext, "切換失敗：需要 root 權限", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun openDeveloperSettings() {
-        try {
-            val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-            }
-            startActivity(intent)
-            Toast.makeText(applicationContext, "請手動切換 USB 偵錯模式", Toast.LENGTH_SHORT).show()
-        } catch (e: Exception) {
-            Toast.makeText(applicationContext, "無法開啟開發人員選項", Toast.LENGTH_LONG).show()
-        }
-    }
-
-    private fun hasRootAccess(): Boolean {
-        return try {
-            val process = Runtime.getRuntime().exec("su")
-            process.outputStream.write("exit\n".toByteArray())
-            process.outputStream.flush()
-            process.waitFor() == 0
-        } catch (e: Exception) {
-            false
-        }
     }
 }
 
