@@ -27,7 +27,8 @@ class UsbDebugTileService : TileService() {
 
     private fun collapseStatusBarWithShell() {
         try {
-            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "input keyevent 3")) // KEYCODE_HOME
+            // 使用 service call 命令收起通知欄，不會影響當前應用
+            val process = Runtime.getRuntime().exec(arrayOf("su", "-c", "service call statusbar 2"))
             process.waitFor()
         } catch (e: Exception) {
             e.printStackTrace()
