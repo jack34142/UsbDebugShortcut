@@ -1,4 +1,4 @@
-package network.co.imge.usbdebugshortcut.ui.theme
+package network.co.imge.usbdebugshortcut.theme
 
 import androidx.compose.ui.graphics.Color
 

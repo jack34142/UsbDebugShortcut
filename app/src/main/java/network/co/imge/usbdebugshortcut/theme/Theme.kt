@@ -1,6 +1,5 @@
-package network.co.imge.usbdebugshortcut.ui.theme
+package network.co.imge.usbdebugshortcut.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme

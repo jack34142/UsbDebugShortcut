@@ -1,9 +1,14 @@
 package network.co.imge.usbdebugshortcut.utils
 
+import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.provider.Settings
+import android.service.quicksettings.TileService
 import android.widget.Toast
+import network.co.imge.usbdebugshortcut.MyPrefs
 import java.io.DataOutputStream
 
 object CommonTools {
@@ -27,19 +32,22 @@ object CommonTools {
     }
 
     fun toggleUsbDebugWithRoot(context: Context) {
-        val enable = if (isUsbDebugEnabled(context)) 0 else 1
+        val isUsbEnabled = !isUsbDebugEnabled(context)
         try {
             val process = Runtime.getRuntime().exec("su")
             val output = DataOutputStream(process.outputStream)
+
+            val enable = if (isUsbEnabled) 1 else 0
             output.writeBytes("settings put global adb_enabled $enable\n")
+
             output.writeBytes("exit\n")
             output.flush()
             process.waitFor()
             output.close()
             process.destroy()
 
-            // 你可以根據需要自己實作這個儲存狀態的邏輯
-            // setLastUsbDebugState(context, enable == 1)
+            val myPrefs = MyPrefs(context)
+            myPrefs.setUsbDebugEnabled(isUsbEnabled)
 
             Toast.makeText(
                 context,
@@ -51,12 +59,25 @@ object CommonTools {
         }
     }
 
+    @SuppressLint("StartActivityAndCollapseDeprecated")
     fun openDeveloperSettings(context: Context) {
         try {
             val intent = Intent(Settings.ACTION_APPLICATION_DEVELOPMENT_SETTINGS).apply {
                 addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
             }
-            context.startActivity(intent)
+            if(context is TileService){
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE){
+                    val pendingIntent = PendingIntent.getActivity(
+                        context, 0, intent,
+                        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+                    )
+                    context.startActivityAndCollapse(pendingIntent)
+                }else{
+                    context.startActivityAndCollapse(intent)
+                }
+            }else{
+                context.startActivity(intent)
+            }
             Toast.makeText(context, "請手動切換 USB 偵錯模式", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             Toast.makeText(context, "無法開啟開發人員選項", Toast.LENGTH_LONG).show()
