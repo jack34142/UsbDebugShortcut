@@ -2,11 +2,11 @@ package network.co.imge.usbdebugshortcut.ui.home
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
@@ -14,6 +14,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import network.co.imge.usbdebugshortcut.R
 import network.co.imge.usbdebugshortcut.utils.CommonTools
 
 @Composable
@@ -51,63 +52,68 @@ fun HomePage(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
     if (showDisclaimer) {
         AlertDialog(
             onDismissRequest = {},
-            title = { Text("免責聲明") },
+            title = { Text(stringResource(R.string.disclaimer)) },
             text = {
                 Column {
-                    Text("本應用需要使用 root 權限。使用 root 功能可能會導致系統不穩定、應用程式異常、資料遺失，甚至使裝置失去官方保固。請務必在充分了解這些風險後謹慎操作。")
+                    Text(stringResource(R.string.text_risk_root))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("只有同意本免責聲明後，才能使用 root 權限來控制 USB 偵錯的開啟與關閉。")
+                    Text(stringResource(R.string.text_require_agreement))
                     Spacer(modifier = Modifier.height(8.dp))
-                    Text("若不同意，則本應用只能協助您快速開啟開發人員選項，無法控制 USB 偵錯功能。")
+                    Text(stringResource(R.string.text_nonroot_help))
                 }
             },
             confirmButton = {
                 TextButton(onClick = {
                     val isRoot = viewModel.agreeDisclaimer(true)
-                    Toast.makeText(context, "取得root權限 ${if (isRoot) "成功" else "失敗"}", Toast.LENGTH_SHORT).show()
+                    val resultText =
+                        if (isRoot) context.getString(R.string.root_success)
+                        else context.getString(R.string.root_failed)
+                    Toast.makeText(context, context.getString(R.string.root_result, resultText), Toast.LENGTH_SHORT).show()
                 }) {
-                    Text("同意")
+                    Text(stringResource(R.string.agree))
                 }
             },
             dismissButton = {
                 TextButton(onClick = {
-//                    (context as? ComponentActivity)?.finishAffinity()
                     viewModel.agreeDisclaimer(false)
                 }) {
-                    Text("不同意")
+                    Text(stringResource(R.string.disagree))
                 }
             }
         )
     }
 
-//    if (disclaimerAgreed) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(32.dp),
+    ) {
         Column(
-            modifier = modifier
-                .fillMaxSize()
-                .padding(32.dp),
-//            verticalArrangement = Arrangement.Top  // 預設就好
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
         ) {
-            Column(
-                modifier = Modifier
-                    .weight(1f)           // 這裡讓上半部撐滿剩餘空間
-                    .fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(24.dp)
-            ) {
-                Text("USB 偵錯: ${if (isUsbDebugEnabled) "開啟" else "關閉"}")
-                Button(onClick = {
-                    CommonTools.openDeveloperSettings(context)
-                }) {
-                    Text("開啟開發人員選項")
-                }
-            }
+            val status = if (isUsbDebugEnabled)
+                stringResource(R.string.enabled)
+            else
+                stringResource(R.string.disabled)
 
-            TextButton(onClick = {
-                viewModel.showDisclaimer()
+            Text(stringResource(R.string.usb_debug_status, status))
+
+            Button(onClick = {
+                CommonTools.openDeveloperSettings(context)
             }) {
-                Text("查看免責聲明")
+                Text(stringResource(R.string.open_developer_options))
             }
         }
-//    }
+
+        TextButton(onClick = {
+            viewModel.showDisclaimer()
+        }) {
+            Text(stringResource(R.string.disclaimer))
+        }
+    }
 }
 
 @Preview(showBackground = true)

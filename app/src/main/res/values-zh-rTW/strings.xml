@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">UsbDebugShortcut</string>
+    <string name="disclaimer">免責聲明</string>
+    <string name="text_risk_root">本應用需要使用 root 權限。使用 root 功能可能會導致系統不穩定、應用程式異常、資料遺失，甚至使裝置失去官方保固。請務必在充分了解這些風險後謹慎操作。</string>
+    <string name="text_require_agreement">只有同意本免責聲明後，才能使用 root 權限來控制 USB 偵錯的開啟與關閉。</string>
+    <string name="text_nonroot_help">若不同意，本應用僅能協助快速開啟開發人員選項。</string>
+    <string name="agree">同意</string>
+    <string name="disagree">不同意</string>
+    <string name="usb_debug_status">USB 偵錯：%1$s</string>
+    <string name="enabled">啟用</string>
+    <string name="disabled">停用</string>
+    <string name="open_developer_options">開啟開發人員選項</string>
+    <string name="root_result">取得 root 權限 %1$s</string>
+    <string name="root_success">成功</string>
+    <string name="root_failed">失敗</string>
+    <string name="manual_toggle_usb">請手動切換 USB 偵錯模式</string>
+    <string name="open_dev_failed">無法開啟開發人員選項</string>
+</resources>

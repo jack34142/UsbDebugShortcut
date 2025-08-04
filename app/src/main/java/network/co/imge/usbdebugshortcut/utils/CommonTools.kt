@@ -9,6 +9,7 @@ import android.provider.Settings
 import android.service.quicksettings.TileService
 import android.widget.Toast
 import network.co.imge.usbdebugshortcut.MyPrefs
+import network.co.imge.usbdebugshortcut.R
 import java.io.DataOutputStream
 
 object CommonTools {
@@ -49,13 +50,15 @@ object CommonTools {
             val myPrefs = MyPrefs(context)
             myPrefs.setUsbDebugEnabled(isUsbEnabled)
 
+            val status = context.getString(if (enable == 1) R.string.enabled else R.string.disabled)
             Toast.makeText(
                 context,
-                "USB 偵錯已${if (enable == 1) "開啟" else "關閉"}",
+                context.getString(R.string.usb_debug_status, status),
                 Toast.LENGTH_SHORT
             ).show()
         } catch (e: Exception) {
-            Toast.makeText(context, "切換失敗：需要 root 權限", Toast.LENGTH_LONG).show()
+            val status = context.getString(R.string.root_failed)
+            Toast.makeText(context, context.getString(R.string.root_result, status), Toast.LENGTH_LONG).show()
         }
     }
 
@@ -78,9 +81,9 @@ object CommonTools {
             }else{
                 context.startActivity(intent)
             }
-            Toast.makeText(context, "請手動切換 USB 偵錯模式", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, context.getString(R.string.manual_toggle_usb), Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
-            Toast.makeText(context, "無法開啟開發人員選項", Toast.LENGTH_LONG).show()
+            Toast.makeText(context, context.getString(R.string.open_dev_failed), Toast.LENGTH_LONG).show()
         }
     }
 }
