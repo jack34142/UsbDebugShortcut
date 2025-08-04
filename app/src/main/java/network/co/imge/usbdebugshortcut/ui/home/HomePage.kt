@@ -1,11 +1,13 @@
 package network.co.imge.usbdebugshortcut.ui.home
 
 import android.widget.Toast
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -106,6 +108,18 @@ fun HomePage(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
             }) {
                 Text(stringResource(R.string.open_developer_options))
             }
+
+            Image(
+                painter = painterResource(id = R.drawable.example),
+                contentDescription = null,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            Text(
+                text = stringResource(R.string.example_info),
+                style = MaterialTheme.typography.bodyMedium
+            )
         }
 
         TextButton(onClick = {
@@ -121,7 +135,7 @@ fun HomePage(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
 fun HomePagePreview() {
     val fakeViewModel = remember {
         object : HomeViewModel() {
-            override val showDisclaimer = MutableStateFlow(true)
+            override val showDisclaimer = MutableStateFlow(false)
             override val disclaimerAgreed = MutableStateFlow(true)
             override val isUsbDebugEnabled = MutableStateFlow(true)
         }

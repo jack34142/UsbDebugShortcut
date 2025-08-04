@@ -15,4 +15,5 @@
     <string name="root_failed">失敗</string>
     <string name="manual_toggle_usb">請手動切換 USB 偵錯模式</string>
     <string name="open_dev_failed">無法開啟開發人員選項</string>
+    <string name="example_info">您可以將「USB 偵錯開關」加入通知欄的快捷設定中，方便快速開啟或關閉 USB 偵錯模式。\n\n請下拉通知欄，點選右上角的齒輪圖示或「編輯」按鈕，然後將本應用的圖示拖曳至上方即可。</string>
 </resources>

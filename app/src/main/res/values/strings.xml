@@ -15,4 +15,5 @@
     <string name="root_failed">failed</string>
     <string name="manual_toggle_usb">Please manually toggle USB debugging</string>
     <string name="open_dev_failed">Unable to open Developer Options</string>
+    <string name="example_info">You can add the \"USB Debug Toggle\" to your Quick Settings panel for easy access.\n\nSwipe down the notification shade, tap the gear icon or \"Edit\", then drag the app icon into your active tiles.</string>
 </resources>

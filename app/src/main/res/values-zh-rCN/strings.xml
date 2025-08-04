@@ -15,4 +15,5 @@
     <string name="root_failed">失败</string>
     <string name="manual_toggle_usb">请手动切换 USB 调试模式</string>
     <string name="open_dev_failed">无法打开开发者选项</string>
+    <string name="example_info">您可以将「USB调试开关」添加到通知栏的快捷设置中，方便快速开启或关闭USB调试模式。\n\n请下拉通知栏，点击右上角的齿轮图标或“编辑”按钮，然后将本应用图标拖动到上方即可。</string>
 </resources>
