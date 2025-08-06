@@ -39,3 +39,6 @@ android root 工具
 
 ## 联系方式
 lazyjackdev@gmail.com
+
+## 许可协议
+本项目采用 MIT 许可证。详情请参阅 [LICENSE](LICENSE) 文件。
