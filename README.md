@@ -4,6 +4,7 @@
 
 Have you ever encountered a prompt saying “Please disable USB debugging” while using banking or financial apps?
 UsbDebugShortcut is a tool designed to solve this annoying issue. It provides a simple way to quickly turn USB debugging on or off, helping you manually handle these limitations.
+![Main Banner](圖片素材/主題圖片.png)
 
 ## Features
 - Quickly toggle USB debugging (requires root access)
