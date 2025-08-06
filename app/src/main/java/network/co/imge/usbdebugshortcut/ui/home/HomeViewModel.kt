@@ -2,7 +2,6 @@ package network.co.imge.usbdebugshortcut.ui.home
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -13,9 +12,6 @@ open class HomeViewModel : ViewModel() {
     private val _isUsbDebugEnabled = MutableStateFlow(false)
     open val isUsbDebugEnabled: StateFlow<Boolean> = _isUsbDebugEnabled
 
-    private val _disclaimerAgreed = MutableStateFlow(false)
-    open val disclaimerAgreed: StateFlow<Boolean> = _disclaimerAgreed
-
     private val _showDisclaimer = MutableStateFlow(false)
     open val showDisclaimer: StateFlow<Boolean> = _showDisclaimer
 
@@ -25,7 +21,6 @@ open class HomeViewModel : ViewModel() {
         if (myPrefs == null) {
             myPrefs = MyPrefs(context)
             val agreed = myPrefs!!.isDisclaimerAgreed()
-            _disclaimerAgreed.value = agreed
             _showDisclaimer.value = !agreed
 
             myPrefs!!.prefs.registerOnSharedPreferenceChangeListener(preferenceChangeListener)
@@ -42,7 +37,6 @@ open class HomeViewModel : ViewModel() {
 
     fun agreeDisclaimer(isAgree: Boolean) : Boolean {
         _showDisclaimer.value = false
-        _disclaimerAgreed.value = isAgree
         myPrefs?.setDisclaimerAgreed(isAgree)
 
         if(isAgree){
@@ -56,7 +50,7 @@ open class HomeViewModel : ViewModel() {
     }
 
     private val preferenceChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { prefs, key ->
-        if (key == MyPrefs.Companion.KEY_USB_DEBUG_ENABLED) {
+        if (key == MyPrefs.KEY_USB_DEBUG_ENABLED) {
             _isUsbDebugEnabled.value = prefs.getBoolean(key, false)
         }
     }

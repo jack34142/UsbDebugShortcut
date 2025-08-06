@@ -25,7 +25,6 @@ fun HomePage(modifier: Modifier = Modifier, viewModel: HomeViewModel = viewModel
     val lifecycleOwner = LocalLifecycleOwner.current
 
     val showDisclaimer by viewModel.showDisclaimer.collectAsState()
-    val disclaimerAgreed by viewModel.disclaimerAgreed.collectAsState()
     val isUsbDebugEnabled by viewModel.isUsbDebugEnabled.collectAsState()
 
     LaunchedEffect(Unit) {
@@ -136,7 +135,6 @@ fun HomePagePreview() {
     val fakeViewModel = remember {
         object : HomeViewModel() {
             override val showDisclaimer = MutableStateFlow(false)
-            override val disclaimerAgreed = MutableStateFlow(true)
             override val isUsbDebugEnabled = MutableStateFlow(true)
         }
     }

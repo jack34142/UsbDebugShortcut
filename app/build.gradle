@@ -5,6 +5,15 @@ plugins {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('imge.keystore')  //放在app目錄
+            storePassword 'X^M#W8Qu:aQ9LD)>'
+            keyAlias 'UsbDebugShortcut'
+            keyPassword 'a6Xb%DNViy)N.j_B'
+        }
+    }
+
     namespace 'network.co.imge.usbdebugshortcut'
     compileSdk 35
 
@@ -12,16 +21,21 @@ android {
         applicationId "network.co.imge.usbdebugshortcut"
         minSdk 24
         targetSdk 35
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName "1.0.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.release
+        }
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
@@ -33,6 +47,57 @@ android {
     }
     buildFeatures {
         compose true
+    }
+}
+
+def createRenameTask(String taskName, String buildType, String extension) {
+    tasks.register(taskName, Sync) {
+        into { layout.buildDirectory.dir("outputs/apk/renamed").get().asFile }
+
+        doFirst {
+            def outputDir = layout.buildDirectory.dir("outputs/apk/renamed").get().asFile
+            if (!outputDir.exists()) {
+                outputDir.mkdirs()
+            } else {
+                outputDir.eachFile { file ->
+                    if (file.isFile()) {
+                        file.delete()
+                    } else {
+                        file.deleteDir()
+                    }
+                }
+            }
+        }
+
+        def sourceDir = "build/outputs/apk/${buildType}"
+        from(fileTree(dir: sourceDir, include: "**/*.${extension}")) {
+            rename { String filename ->
+                def versionName = android.defaultConfig.versionName
+                def versionCode = android.defaultConfig.versionCode
+                return "UsbDebugShortcut_${buildType}_${versionName}+${versionCode}.${extension}"
+            }
+        }
+    }
+}
+
+// 建立 4 個任務：assemble/apk 與 bundle/aab
+createRenameTask("renameAssembleDebugOutputs", "debug", "apk")
+createRenameTask("renameAssembleReleaseOutputs", "release", "apk")
+createRenameTask("renameBundleDebugOutputs", "debug", "aab")
+createRenameTask("renameBundleReleaseOutputs", "release", "aab")
+
+afterEvaluate {
+    tasks.named("assembleDebug") {
+        finalizedBy("renameAssembleDebugOutputs")
+    }
+    tasks.named("assembleRelease") {
+        finalizedBy("renameAssembleReleaseOutputs")
+    }
+    tasks.named("bundleDebug") {
+        finalizedBy("renameBundleDebugOutputs")
+    }
+    tasks.named("bundleRelease") {
+        finalizedBy("renameBundleReleaseOutputs")
     }
 }
 

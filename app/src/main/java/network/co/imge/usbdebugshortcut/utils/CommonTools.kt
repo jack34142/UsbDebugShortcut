@@ -62,6 +62,7 @@ object CommonTools {
         }
     }
 
+    @Suppress("DEPRECATION")
     @SuppressLint("StartActivityAndCollapseDeprecated")
     fun openDeveloperSettings(context: Context) {
         try {
